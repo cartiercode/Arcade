@@ -108,7 +108,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (dir === Directions.DOWN) nextY++;
                 if (dir === Directions.LEFT) nextX--;
                 if (dir === Directions.RIGHT) nextX++;
-                return maze[nextY][nextX] !== 1;
+                // Bounds check
+                return nextX >= 0 && nextX < MAZE_WIDTH && nextY >= 0 && nextY < MAZE_HEIGHT && maze[nextY][nextX] !== 1;
             });
             ghost.direction = possibleDirections[Math.floor(Math.random() * possibleDirections.length)];
             if (ghost.direction === Directions.UP) ghost.y--;
