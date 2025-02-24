@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const CANVAS_HEIGHT = 400;
     const TILE_SIZE = 20;
     const MAZE_WIDTH = 20;
-    const MAZE_HEIGHT = 20; // Now matches canvas height
+    const MAZE_HEIGHT = 20;
 
     const Directions = {
         UP: 'up',
@@ -42,30 +42,30 @@ document.addEventListener('DOMContentLoaded', () => {
     let level = 1;
     let pellets = [];
     let powerPellets = [];
-    let ghostMoveCounter = 0; // For slowing ghosts
+    let ghostMoveCounter = 0;
 
-    // Expanded maze to 20x20
+    // Refined 20x20 maze: thinner right pellets, connected halves
     let maze = [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,1],
-        [1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,2,1],
-        [1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,2,1],
-        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
-        [1,2,1,1,2,1,2,1,1,1,1,1,2,1,2,1,1,2,2,1],
-        [1,2,2,2,2,1,2,2,2,1,2,2,2,1,2,2,2,2,2,1],
-        [1,1,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,1,1],
-        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
-        [1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,2,1],
-        [1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
-        [1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,2,1],
-        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
-        [1,1,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,1,1],
-        [1,2,2,2,2,1,2,2,2,1,2,2,2,1,2,2,2,2,2,1],
-        [1,2,1,1,2,1,2,1,1,1,1,1,2,1,2,1,1,2,2,1],
-        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], // 0
+        [1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,0,1], // 1
+        [1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,2,1], // 2
+        [1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,0,1], // 3
+        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1], // 4
+        [1,2,1,1,2,1,2,1,1,1,1,1,2,1,2,1,1,2,0,1], // 5
+        [1,2,2,2,2,1,2,2,2,1,2,2,2,1,2,2,2,2,2,1], // 6
+        [1,1,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,0,1], // 7
+        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1], // 8
+        [1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,0,1], // 9
+        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1], // 10
+        [1,1,1,1,2,1,1,1,2,2,2,1,1,1,2,1,1,1,0,1], // 11
+        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1], // 12
+        [1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,0,1], // 13
+        [1,2,2,2,2,1,2,2,2,1,2,2,2,1,2,2,2,2,2,1], // 14
+        [1,1,1,1,2,1,2,1,1,1,1,1,2,1,2,1,1,1,0,1], // 15
+        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1], // 16
+        [1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,0,1], // 17
+        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1], // 18
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]  // 19
     ];
 
     for (let y = 0; y < MAZE_HEIGHT; y++) {
@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function moveGhosts() {
         ghostMoveCounter++;
-        if (ghostMoveCounter % 10 === 0) { // Move every 10 frames (~6 times/second at 60 FPS)
+        if (ghostMoveCounter % 10 === 0) {
             ghosts.forEach(ghost => {
                 let directions = [Directions.UP, Directions.DOWN, Directions.LEFT, Directions.RIGHT];
                 let possibleDirections = directions.filter(dir => {
@@ -138,13 +138,13 @@ document.addEventListener('DOMContentLoaded', () => {
         let pelletIndex = pellets.findIndex(p => p.x === pacman.x && p.y === pacman.y);
         if (pelletIndex !== -1) {
             pellets.splice(pelletIndex, 1);
-            maze[pacman.y][pacman.x] = 0; // Clear pellet from maze
+            maze[pacman.y][pacman.x] = 0;
             score += 10;
         }
         let powerPelletIndex = powerPellets.findIndex(p => p.x === pacman.x && p.y === pacman.y);
         if (powerPelletIndex !== -1) {
             powerPellets.splice(powerPelletIndex, 1);
-            maze[pacman.y][pacman.x] = 0; // Clear power pellet
+            maze[pacman.y][pacman.x] = 0;
             score += 50;
         }
         ghosts.forEach(ghost => {
