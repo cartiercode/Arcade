@@ -1,5 +1,7 @@
 console.log('Script loaded');
 
+let ctx; // Declare ctx globally
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded');
     const canvas = document.getElementById('gameCanvas');
@@ -10,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     canvas.width = 400;
     canvas.height = 400;
-    const ctx = canvas.getContext('2d');
+    ctx = canvas.getContext('2d'); // Assign to global ctx
     console.log('Context:', ctx);
     if (!ctx) {
         console.error('Context not available!');
@@ -175,6 +177,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function render() {
+        console.log('Render called, ctx:', ctx);
+        if (!ctx) {
+            console.error('ctx is undefined in render!');
+            return;
+        }
         ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         for (let y = 0; y < MAZE_HEIGHT; y++) {
             for (let x = 0; x < MAZE_WIDTH; x++) {
