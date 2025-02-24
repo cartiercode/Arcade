@@ -1,0 +1,37 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: black;
+}
+
+#game-container {
+    position: relative;
+}
+
+#gameCanvas {
+    background-color: black;
+}
+
+#score, #lives, #level {
+    position: absolute;
+    color: white;
+    font-size: 20px;
+}
+
+#score {
+    top: 10px;
+    left: 10px;
+}
+
+#lives {
+    top: 10px;
+    right: 10px;
+}
+
+#level {
+    bottom: 10px;
+    left: 10px;
+}
