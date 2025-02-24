@@ -22,8 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const CANVAS_WIDTH = 400;
     const CANVAS_HEIGHT = 400;
     const TILE_SIZE = 20;
-    const MAZE_WIDTH = CANVAS_WIDTH / TILE_SIZE;
-    const MAZE_HEIGHT = CANVAS_HEIGHT / TILE_SIZE;
+    const MAZE_WIDTH = 20;  // Matches maze columns
+    const MAZE_HEIGHT = 12; // Matches maze rows
 
     const Directions = {
         UP: 'up',
