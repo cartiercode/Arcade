@@ -66,16 +66,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function gameLoop() {
+        console.log('Game loop running');
         update();
         render();
         requestAnimationFrame(gameLoop);
     }
 
     function update() {
+        console.log('Update started');
         movePacman();
+        console.log('Pacman moved');
         moveGhosts();
+        console.log('Ghosts moved');
         checkCollisions();
+        console.log('Collisions checked');
         checkLevelCompletion();
+        console.log('Level completion checked');
     }
 
     function movePacman() {
@@ -105,7 +111,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (dir === Directions.RIGHT) nextX++;
                 return nextX >= 0 && nextX < MAZE_WIDTH && nextY >= 0 && nextY < MAZE_HEIGHT && maze[nextY][nextX] !== 1;
             });
-            ghost.direction = possibleDirections[Math.floor(Math.random() * possibleDirections.length)];
+            if (possibleDirections.length > 0) {
+                ghost.direction = possibleDirections[Math.floor(Math.random() * possibleDirections.length)];
+            }
             if (ghost.direction === Directions.UP) ghost.y--;
             if (ghost.direction === Directions.DOWN) ghost.y++;
             if (ghost.direction === Directions.LEFT) ghost.x--;
