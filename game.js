@@ -22,8 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const CANVAS_WIDTH = 400;
     const CANVAS_HEIGHT = 400;
     const TILE_SIZE = 20;
-    const MAZE_WIDTH = 20;  // Matches maze columns
-    const MAZE_HEIGHT = 12; // Matches maze rows
+    const MAZE_WIDTH = 20;
+    const MAZE_HEIGHT = 20; // Now matches canvas height
 
     const Directions = {
         UP: 'up',
@@ -42,7 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let level = 1;
     let pellets = [];
     let powerPellets = [];
+    let ghostMoveCounter = 0; // For slowing ghosts
 
+    // Expanded maze to 20x20
     let maze = [
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,1],
@@ -55,6 +57,14 @@ document.addEventListener('DOMContentLoaded', () => {
         [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
         [1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,2,1],
         [1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+        [1,2,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,2,2,1],
+        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+        [1,1,1,1,2,1,1,1,2,1,2,1,1,1,2,1,1,1,1,1],
+        [1,2,2,2,2,1,2,2,2,1,2,2,2,1,2,2,2,2,2,1],
+        [1,2,1,1,2,1,2,1,1,1,1,1,2,1,2,1,1,2,2,1],
+        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
@@ -100,36 +110,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function moveGhosts() {
-        ghosts.forEach(ghost => {
-            let directions = [Directions.UP, Directions.DOWN, Directions.LEFT, Directions.RIGHT];
-            let possibleDirections = directions.filter(dir => {
-                let nextX = ghost.x;
-                let nextY = ghost.y;
-                if (dir === Directions.UP) nextY--;
-                if (dir === Directions.DOWN) nextY++;
-                if (dir === Directions.LEFT) nextX--;
-                if (dir === Directions.RIGHT) nextX++;
-                return nextX >= 0 && nextX < MAZE_WIDTH && nextY >= 0 && nextY < MAZE_HEIGHT && maze[nextY][nextX] !== 1;
+        ghostMoveCounter++;
+        if (ghostMoveCounter % 10 === 0) { // Move every 10 frames (~6 times/second at 60 FPS)
+            ghosts.forEach(ghost => {
+                let directions = [Directions.UP, Directions.DOWN, Directions.LEFT, Directions.RIGHT];
+                let possibleDirections = directions.filter(dir => {
+                    let nextX = ghost.x;
+                    let nextY = ghost.y;
+                    if (dir === Directions.UP) nextY--;
+                    if (dir === Directions.DOWN) nextY++;
+                    if (dir === Directions.LEFT) nextX--;
+                    if (dir === Directions.RIGHT) nextX++;
+                    return nextX >= 0 && nextX < MAZE_WIDTH && nextY >= 0 && nextY < MAZE_HEIGHT && maze[nextY][nextX] !== 1;
+                });
+                if (possibleDirections.length > 0) {
+                    ghost.direction = possibleDirections[Math.floor(Math.random() * possibleDirections.length)];
+                }
+                if (ghost.direction === Directions.UP) ghost.y--;
+                if (ghost.direction === Directions.DOWN) ghost.y++;
+                if (ghost.direction === Directions.LEFT) ghost.x--;
+                if (ghost.direction === Directions.RIGHT) ghost.x++;
             });
-            if (possibleDirections.length > 0) {
-                ghost.direction = possibleDirections[Math.floor(Math.random() * possibleDirections.length)];
-            }
-            if (ghost.direction === Directions.UP) ghost.y--;
-            if (ghost.direction === Directions.DOWN) ghost.y++;
-            if (ghost.direction === Directions.LEFT) ghost.x--;
-            if (ghost.direction === Directions.RIGHT) ghost.x++;
-        });
+        }
     }
 
     function checkCollisions() {
         let pelletIndex = pellets.findIndex(p => p.x === pacman.x && p.y === pacman.y);
         if (pelletIndex !== -1) {
             pellets.splice(pelletIndex, 1);
+            maze[pacman.y][pacman.x] = 0; // Clear pellet from maze
             score += 10;
         }
         let powerPelletIndex = powerPellets.findIndex(p => p.x === pacman.x && p.y === pacman.y);
         if (powerPelletIndex !== -1) {
             powerPellets.splice(powerPelletIndex, 1);
+            maze[pacman.y][pacman.x] = 0; // Clear power pellet
             score += 50;
         }
         ghosts.forEach(ghost => {
