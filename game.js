@@ -43,8 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let pellets = [];
     let powerPellets = [];
     let ghostMoveCounter = 0;
-    let pacmanMoveCounter = 0; // New counter for Pacman
+    let pacmanMoveCounter = 0;
+    let keys = {}; // Track held keys
 
+    // Perfectly mirrored 20x20 maze
     let maze = [
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1], // 0
         [1,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,1], // 1
@@ -76,25 +78,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function gameLoop() {
-        console.log('Game loop running');
         update();
         render();
         requestAnimationFrame(gameLoop);
     }
 
     function update() {
-        console.log('Update started');
         pacmanMoveCounter++;
-        if (pacmanMoveCounter % 4 === 0) { // Move every 4 frames (~15 moves/second at 60 FPS)
-            movePacman();
+        if (pacmanMoveCounter % 4 === 0) { // ~15 moves/second, adjustable
+            if (keys['ArrowUp']) pacman.direction = Directions.UP;
+            if (keys['ArrowDown']) pacman.direction = Directions.DOWN;
+            if (keys['ArrowLeft']) pacman.direction = Directions.LEFT;
+            if (keys['ArrowRight']) pacman.direction = Directions.RIGHT;
+            // Move only if a key is held
+            if (keys['ArrowUp'] || keys['ArrowDown'] || keys['ArrowLeft'] || keys['ArrowRight']) {
+                movePacman();
+            }
         }
-        console.log('Pacman moved');
         moveGhosts();
-        console.log('Ghosts moved');
         checkCollisions();
-        console.log('Collisions checked');
         checkLevelCompletion();
-        console.log('Level completion checked');
     }
 
     function movePacman() {
@@ -198,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function render() {
-        console.log('Render called, ctx:', ctx);
         if (!ctx) {
             console.error('ctx is undefined in render!');
             return;
@@ -235,13 +237,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('level').innerText = 'Level: ' + level;
     }
 
+    // Key press handling
     document.addEventListener('keydown', (event) => {
-        switch (event.key) {
-            case 'ArrowUp': pacman.direction = Directions.UP; break;
-            case 'ArrowDown': pacman.direction = Directions.DOWN; break;
-            case 'ArrowLeft': pacman.direction = Directions.LEFT; break;
-            case 'ArrowRight': pacman.direction = Directions.RIGHT; break;
-        }
+        keys[event.key] = true;
+    });
+
+    document.addEventListener('keyup', (event) => {
+        keys[event.key] = false;
     });
 
     gameLoop();
