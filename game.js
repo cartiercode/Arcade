@@ -1,6 +1,6 @@
 console.log('Script loaded');
 
-let ctx; // Declare ctx globally
+let ctx;
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded');
@@ -12,21 +12,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     canvas.width = 400;
     canvas.height = 400;
-    ctx = canvas.getContext('2d'); // Assign to global ctx
+    ctx = canvas.getContext('2d');
     console.log('Context:', ctx);
     if (!ctx) {
         console.error('Context not available!');
         return;
     }
 
-    // Constants
     const CANVAS_WIDTH = 400;
     const CANVAS_HEIGHT = 400;
     const TILE_SIZE = 20;
     const MAZE_WIDTH = CANVAS_WIDTH / TILE_SIZE;
     const MAZE_HEIGHT = CANVAS_HEIGHT / TILE_SIZE;
 
-    // Directions
     const Directions = {
         UP: 'up',
         DOWN: 'down',
@@ -34,7 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
         RIGHT: 'right'
     };
 
-    // Game objects
     let pacman = { x: 1, y: 1, direction: Directions.RIGHT };
     let ghosts = [
         { x: 9, y: 9, direction: Directions.LEFT },
@@ -46,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let pellets = [];
     let powerPellets = [];
 
-    // Maze layout (1 = wall, 2 = pellet, 3 = power pellet)
     let maze = [
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
         [1,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,1],
@@ -62,7 +58,6 @@ document.addEventListener('DOMContentLoaded', () => {
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
-    // Initialize pellets and power pellets
     for (let y = 0; y < MAZE_HEIGHT; y++) {
         for (let x = 0; x < MAZE_WIDTH; x++) {
             if (maze[y][x] === 2) pellets.push({ x, y });
@@ -92,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             case Directions.LEFT: nextX--; break;
             case Directions.RIGHT: nextX++; break;
         }
-        if (maze[nextY][nextX] !== 1) {
+        if (nextX >= 0 && nextX < MAZE_WIDTH && nextY >= 0 && nextY < MAZE_HEIGHT && maze[nextY][nextX] !== 1) {
             pacman.x = nextX;
             pacman.y = nextY;
         }
@@ -108,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (dir === Directions.DOWN) nextY++;
                 if (dir === Directions.LEFT) nextX--;
                 if (dir === Directions.RIGHT) nextX++;
-                // Bounds check
                 return nextX >= 0 && nextX < MAZE_WIDTH && nextY >= 0 && nextY < MAZE_HEIGHT && maze[nextY][nextX] !== 1;
             });
             ghost.direction = possibleDirections[Math.floor(Math.random() * possibleDirections.length)];
