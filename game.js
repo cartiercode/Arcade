@@ -44,10 +44,24 @@ for (let y = 0; y < MAZE_HEIGHT; y++) {
     }
 }
 
-const canvas = document.getElementById('gameCanvas');
-canvas.width = CANVAS_WIDTH;
-canvas.height = CANVAS_HEIGHT;
-const ctx = canvas.getContext('2d');
+document.addEventListener('DOMContentLoaded', () => {
+    const canvas = document.getElementById('gameCanvas');
+    console.log('Canvas found:', canvas);
+    if (!canvas) {
+        console.error('Canvas not found!');
+        return;
+    }
+    canvas.width = CANVAS_WIDTH;
+    canvas.height = CANVAS_HEIGHT;
+    const ctx = canvas.getContext('2d');
+    console.log('Context loaded:', ctx);
+    if (!ctx) {
+        console.error('Context not available!');
+        return;
+    }
+
+    gameLoop(); // Start the game loop here
+});
 
 function gameLoop() {
     update();
