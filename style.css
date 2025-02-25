@@ -1,25 +1,22 @@
-/* Style the body to center everything */
 body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Full viewport height */
+    height: 100vh;
     margin: 0;
     padding: 0;
     background-color: black;
-    overflow: hidden; /* Prevent scrolling */
+    overflow: hidden;
 }
 
-/* Container for the game */
 #game-container {
     position: relative;
-    width: 100vw; /* Full viewport width */
-    height: 100vh; /* Full viewport height */
+    width: 100vw;
+    height: 100vh;
     max-width: 100%;
     max-height: 100%;
 }
 
-/* Canvas styling */
 #gameCanvas {
     background-color: black;
     width: 100%;
@@ -27,7 +24,6 @@ body {
     display: block;
 }
 
-/* Styling for score, lives, and level text */
 #score, #lives, #level {
     position: absolute;
     color: white;
@@ -36,27 +32,12 @@ body {
     padding: 5px;
 }
 
-/* Position the score at the top-left */
-#score {
-    top: 10px;
-    left: 10px;
-}
+#score { top: 10px; left: 10px; }
+#lives { top: 10px; right: 10px; }
+#level { bottom: 100px; left: 10px; }
 
-/* Position the lives at the top-right */
-#lives {
-    top: 10px;
-    right: 10px;
-}
-
-/* Position the level above the controls */
-#level {
-    bottom: 100px; /* Moved up to avoid overlapping with controls */
-    left: 10px;
-}
-
-/* Style the control buttons container */
 #controls {
-    display: none; /* Hidden on desktop by default */
+    display: none;
     position: absolute;
     bottom: 20px;
     left: 50%;
@@ -66,31 +47,27 @@ body {
     padding: 5px;
 }
 
-/* Style for horizontal arrangement of left and right buttons */
 .horizontal {
     display: flex;
-    gap: 15px; /* Space between buttons */
+    gap: 15px;
 }
 
-/* Style for individual control buttons */
 #controls button {
     width: 50px;
     height: 50px;
     font-size: 24px;
-    background-color: #333; /* Dark gray */
+    background-color: #333;
     color: white;
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    touch-action: manipulation; /* Improve touch response */
+    touch-action: manipulation;
 }
 
-/* Change button color when pressed */
 #controls button:active {
-    background-color: #555; /* Lighter gray */
+    background-color: #555;
 }
 
-/* Show controls on mobile devices (screen width <= 1024px) */
 @media (max-width: 1024px) {
     #controls {
         display: flex;
