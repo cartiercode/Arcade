@@ -15,56 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Blockchain setup
-    const contractAddress = "YOUR_CONTRACT_ADDRESS_HERE"; // Replace after deploying
-    const contractABI = [
-        {"inputs":[{"internalType":"address","name":"_automationAddress","type":"address"}],"stateMutability":"nonpayable","type":"constructor"},
-        {"inputs":[],"name":"payToPlay","outputs":[],"stateMutability":"payable","type":"function"},
-        {"inputs":[{"internalType":"uint256","name":"score","type":"uint256"},{"internalType":"bytes32","name":"gameStateHash","type":"bytes32"}],"name":"submitScore","outputs":[],"stateMutability":"nonpayable","type":"function"},
-        {"inputs":[{"internalType":"uint256","name":"","type":"uint256"},{"internalType":"address","name":"","type":"address"}],"name":"scores","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-        {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"hasPaid","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"}
-    ];
-
-    let web3;
-    let contract;
-    async function initWeb3() {
-        if (window.tronWeb && window.tronWeb.defaultAddress) {
-            web3 = window.tronWeb;
-            contract = new web3.Contract(contractABI, contractAddress);
-        } else {
-            alert('Please install TronLink and log in!');
-        }
-    }
-    initWeb3();
-
-    async function payToPlay() {
-        try {
-            await contract.methods.payToPlay().send({
-                callValue: web3.toSun(1), // 1 TRX
-                from: web3.defaultAddress.base58
-            });
-            alert('Payment successful! Starting game...');
-            return true;
-        } catch (error) {
-            console.error('Payment failed:', error);
-            alert('Payment failed. Check TronLink.');
-            return false;
-        }
-    }
-
-    async function submitScore() {
-        const gameStateHash = web3.utils.sha3(JSON.stringify({ score, level, lives }));
-        try {
-            await contract.methods.submitScore(score, gameStateHash).send({
-                from: web3.defaultAddress.base58
-            });
-            alert('Score submitted: ' + score);
-        } catch (error) {
-            console.error('Score submission failed:', error);
-            alert('Score submission failed.');
-        }
-    }
-
     const MAZE_WIDTH = 20;
     const MAZE_HEIGHT = 20;
 
@@ -208,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (lives > 0) resetPositions();
                 else {
                     alert('Game Over! Your score: ' + score);
-                    submitScore();
                     document.location.reload();
                 }
             }
@@ -221,7 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (level > 10) {
                 score += 1000;
                 alert('Congratulations! You beat level 10. Bonus points awarded. Final score: ' + score);
-                submitScore();
                 document.location.reload();
             } else {
                 alert('Level ' + (level - 1) + ' completed! Moving to level ' + level);
@@ -314,27 +262,5 @@ document.addEventListener('DOMContentLoaded', () => {
         movePacman();
     });
 
-    // Pay-to-play button
-    canvas.style.display = 'none';
-    const payButton = document.createElement('button');
-    payButton.innerText = 'Pay 1 TRX to Play';
-    payButton.style.position = 'absolute';
-    payButton.style.top = '50%';
-    payButton.style.left = '50%';
-    payButton.style.transform = 'translate(-50%, -50%)';
-    payButton.style.padding = '10px 20px';
-    payButton.style.fontSize = '20px';
-    payButton.style.backgroundColor = 'yellow';
-    payButton.style.border = 'none';
-    payButton.style.cursor = 'pointer';
-    document.body.appendChild(payButton);
-
-    payButton.addEventListener('click', async () => {
-        const paid = await payToPlay();
-        if (paid) {
-            payButton.remove();
-            canvas.style.display = 'block';
-            gameLoop();
-        }
-    });
+    gameLoop();
 });
