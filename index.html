@@ -4,14 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Arcade - Pacman</title>
+    <!-- Link to the CSS file for styling -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
+        <!-- Canvas where the game will be drawn -->
         <canvas id="gameCanvas"></canvas>
+        <!-- Display for score, lives, and level -->
         <div id="score">Score: 0</div>
         <div id="lives">Lives: 3</div>
         <div id="level">Level: 1</div>
+        <!-- On-screen controls for mobile devices -->
         <div id="controls">
             <button id="upBtn">↑</button>
             <div class="horizontal">
@@ -21,6 +25,7 @@
             <button id="downBtn">↓</button>
         </div>
     </div>
+    <!-- Link to the JavaScript file for game logic -->
     <script src="game.js"></script>
 </body>
 </html>
