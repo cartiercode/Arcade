@@ -4,9 +4,8 @@ console.log('Script loaded');
 let ctx;
 const MAZE_WIDTH = 28;
 const MAZE_HEIGHT = 31;
-const TILE_SIZE_DEFAULT = 20; // Base tile size, scaled dynamically
 
-// Maze layout
+// Maze layout: 1 = wall, 2 = pellet, 3 = power pellet, 0 = empty
 const maze = [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
     [1,3,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,3,1],
@@ -59,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         canvas.height = window.innerHeight;
         const controlsHeight = window.innerWidth <= 1024 ? 150 : 0; // Space for controls on mobile
         const availableHeight = window.innerHeight - controlsHeight;
-        tileSize = Math.min(window.innerWidth / MAZE_WIDTH, availableHeight / MAZE_HEIGHT) * 0.9; // 90% scale
+        tileSize = Math.min(window.innerWidth / MAZE_WIDTH, availableHeight / MAZE_HEIGHT) * 0.8; // Reduced scale
     }
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
@@ -141,14 +140,16 @@ document.addEventListener('DOMContentLoaded', () => {
         ghostMoveCounter++;
         if (ghostMoveCounter % ghosts[0].speed === 0) {
             ghosts.forEach(ghost => {
-                let directions = [Directions.UP, Directions.DOWN, Directions.LEFT, Directions.RIGHT];
+                let directions = [Directions.UP, Directions.RIGHT, Directions.DOWN, Directions.LEFT];
                 let possibleDirections = directions.filter(dir => {
                     let nextX = ghost.x;
                     let nextY = ghost.y;
-                    if (dir === Directions.UP) nextY--;
-                    if (dir === Directions.DOWN) nextY++;
-                    if (dir === Directions.LEFT) nextX--;
-                    if (dir === Directions.RIGHT) nextX++;
+                    switch (dir) {
+                        case Directions.UP: nextY--; break;
+                        case Directions.DOWN: nextY++; break;
+                        case Directions.LEFT: nextX--; break;
+                        case Directions.RIGHT: nextX++; break;
+                    }
                     if (nextX < 0) nextX = MAZE_WIDTH - 1;
                     if (nextX >= MAZE_WIDTH) nextX = 0;
                     return nextY >= 0 && nextY < MAZE_HEIGHT && maze[nextY][nextX] !== 1;
@@ -158,10 +159,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 let nextX = ghost.x;
                 let nextY = ghost.y;
-                if (ghost.dir === Directions.UP) nextY--;
-                if (ghost.dir === Directions.DOWN) nextY++;
-                if (ghost.dir === Directions.LEFT) nextX--;
-                if (ghost.dir === Directions.RIGHT) nextX++;
+                switch (ghost.dir) {
+                    case Directions.UP: nextY--; break;
+                    case Directions.DOWN: nextY++; break;
+                    case Directions.LEFT: nextX--; break;
+                    case Directions.RIGHT: nextX++; break;
+                }
                 if (nextX < 0) nextX = MAZE_WIDTH - 1;
                 if (nextX >= MAZE_WIDTH) nextX = 0;
                 if (nextY >= 0 && nextY < MAZE_HEIGHT && maze[nextY][nextX] !== 1) {
