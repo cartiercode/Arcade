@@ -45,7 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let touchStartY = 0;
     let touchEndX = 0;
     let touchEndY = 0;
-    const SWIPE_THRESHOLD = 30;
+    const SWIPE_THRESHOLD = 20; // Lowered for quicker response
+    let isTouchActive = false; // Track if touch controls are active
 
     let maze = [
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -85,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function update() {
         pacmanMoveCounter++;
+        // Keyboard controls with delay
         if (pacmanMoveCounter % 4 === 0) {
             if (keys['ArrowUp']) pacman.direction = Directions.UP;
             if (keys['ArrowDown']) pacman.direction = Directions.DOWN;
@@ -93,6 +95,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (keys['ArrowUp'] || keys['ArrowDown'] || keys['ArrowLeft'] || keys['ArrowRight']) {
                 movePacman();
             }
+        }
+        // Touch controls without delay if active
+        if (isTouchActive) {
+            movePacman();
         }
         moveGhosts();
         checkCollisions();
@@ -240,6 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
+        isTouchActive = true; // Activate touch controls
     });
 
     canvas.addEventListener('touchmove', (e) => {
@@ -259,7 +266,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (deltaY > 0) pacman.direction = Directions.DOWN;
             else pacman.direction = Directions.UP;
         }
-        movePacman();
+        // Don't call movePacman() here; let update() handle it continuously
+    });
+
+    // Stop movement when touch ends (optional: remove if you want continuous movement)
+    canvas.addEventListener('touchcancel', (e) => {
+        e.preventDefault();
+        isTouchActive = false;
     });
 
     gameLoop();
