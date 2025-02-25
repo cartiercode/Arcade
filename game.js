@@ -15,23 +15,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const MAZE_WIDTH = 20;
-    const MAZE_HEIGHT = 20;
+    const MAZE_WIDTH = 28; // Classic Pac-Man width
+    const MAZE_HEIGHT = 31; // Classic Pac-Man height
 
     function resizeCanvas() {
         canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight * (window.innerWidth <= 768 ? 0.8 : 1); // 80% height on mobile
+        canvas.height = window.innerHeight;
         const minDimension = Math.min(canvas.width, canvas.height);
-        window.TILE_SIZE = minDimension / MAZE_WIDTH;
+        window.TILE_SIZE = minDimension / MAZE_WIDTH; // Scale based on width
     }
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
     const Directions = { UP: 'up', DOWN: 'down', LEFT: 'left', RIGHT: 'right' };
-    let pacman = { x: 1, y: 1, direction: Directions.RIGHT };
+    let pacman = { x: 13, y: 23, direction: Directions.LEFT }; // Starting at classic position
     let ghosts = [
-        { x: 9, y: 9, direction: Directions.LEFT },
-        { x: 10, y: 9, direction: Directions.RIGHT }
+        { x: 13, y: 11, direction: Directions.UP, color: 'red' },    // Blinky
+        { x: 14, y: 13, direction: Directions.DOWN, color: '#FFB8FF' }, // Pinky
+        { x: 12, y: 13, direction: Directions.DOWN, color: '#00FFFF' }, // Inky
+        { x: 15, y: 13, direction: Directions.DOWN, color: '#FFB852' }  // Clyde
     ];
     let score = 0;
     let lives = 3;
@@ -43,35 +45,52 @@ document.addEventListener('DOMContentLoaded', () => {
     let keys = {};
     let buttonStates = { up: false, down: false, left: false, right: false };
 
+    // Classic Pac-Man maze (1 = wall, 2 = pellet, 3 = power pellet, 0 = empty)
     let maze = [
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-        [1,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,1],
-        [1,2,1,1,2,1,1,1,2,1,1,2,1,1,1,2,1,1,2,1],
-        [1,2,1,1,2,1,1,1,2,1,1,2,1,1,1,2,1,1,2,1],
-        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
-        [1,2,1,1,2,1,2,1,1,1,1,1,1,2,1,2,1,1,2,1],
-        [1,2,2,2,2,1,2,2,2,1,1,2,2,2,1,2,2,2,2,1],
-        [1,1,1,1,2,1,1,1,2,1,1,2,1,1,1,2,1,1,1,1],
-        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
-        [1,2,1,1,2,1,1,1,2,2,2,2,1,1,1,2,1,1,2,1],
-        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
-        [1,1,1,1,2,1,1,1,2,2,2,2,1,1,1,2,1,1,1,1],
-        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
-        [1,2,1,1,2,1,1,1,2,1,1,2,1,1,1,2,1,1,2,1],
-        [1,2,2,2,2,1,2,2,2,1,1,2,2,2,1,2,2,2,2,1],
-        [1,1,1,1,2,1,2,1,1,1,1,1,1,2,1,2,1,1,1,1],
-        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
-        [1,2,1,1,2,1,1,1,2,1,1,2,1,1,1,2,1,1,2,1],
-        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
-        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1],
+        [1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1],
+        [1,2,1,0,0,1,2,1,0,0,0,1,2,1,1,2,1,0,0,0,1,2,1,0,0,1,2,1],
+        [1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1],
+        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+        [1,2,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,2,1],
+        [1,2,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,2,1],
+        [1,2,2,2,2,2,2,1,1,2,2,2,2,1,1,2,2,2,2,1,1,2,2,2,2,2,2,1],
+        [1,1,1,1,1,1,2,1,1,1,1,1,0,1,1,0,1,1,1,1,1,2,1,1,1,1,1,1],
+        [1,1,1,1,1,1,2,1,1,1,1,1,0,1,1,0,1,1,1,1,1,2,1,1,1,1,1,1],
+        [1,1,1,1,1,1,2,1,1,0,0,0,0,0,0,0,0,0,0,1,1,2,1,1,1,1,1,1],
+        [1,1,1,1,1,1,2,1,1,0,1,1,1,1,1,1,1,1,0,1,1,2,1,1,1,1,1,1],
+        [1,1,1,1,1,1,2,1,1,0,1,0,0,0,0,0,0,1,0,1,1,2,1,1,1,1,1,1],
+        [0,0,0,0,0,0,2,0,0,0,1,0,0,0,0,0,0,1,0,0,0,2,0,0,0,0,0,0],
+        [1,1,1,1,1,1,2,1,1,0,1,0,0,0,0,0,0,1,0,1,1,2,1,1,1,1,1,1],
+        [1,1,1,1,1,1,2,1,1,0,1,1,1,1,1,1,1,1,0,1,1,2,1,1,1,1,1,1],
+        [1,1,1,1,1,1,2,1,1,0,0,0,0,0,0,0,0,0,0,1,1,2,1,1,1,1,1,1],
+        [1,1,1,1,1,1,2,1,1,0,1,1,1,1,1,1,1,1,0,1,1,2,1,1,1,1,1,1],
+        [1,1,1,1,1,1,2,1,1,0,1,1,1,1,1,1,1,1,0,1,1,2,1,1,1,1,1,1],
+        [1,2,2,2,2,2,2,2,2,2,2,2,2,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1],
+        [1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1],
+        [1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1],
+        [1,2,2,2,3,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,3,2,2,2,1],
+        [1,1,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,1,1],
+        [1,1,1,1,1,1,2,1,1,2,1,1,1,1,1,1,1,1,2,1,1,2,1,1,1,1,1,1],
+        [1,2,2,2,2,2,2,1,1,2,2,2,2,1,1,2,2,2,2,1,1,2,2,2,2,2,2,1],
+        [1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1],
+        [1,2,1,1,1,1,2,1,1,1,1,1,2,1,1,2,1,1,1,1,1,2,1,1,1,1,2,1],
+        [1,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
     ];
 
-    for (let y = 0; y < MAZE_HEIGHT; y++) {
-        for (let x = 0; x < MAZE_WIDTH; x++) {
-            if (maze[y][x] === 2) pellets.push({ x, y });
-            else if (maze[y][x] === 3) powerPellets.push({ x, y });
+    function resetMaze() {
+        pellets = [];
+        powerPellets = [];
+        for (let y = 0; y < MAZE_HEIGHT; y++) {
+            for (let x = 0; x < MAZE_WIDTH; x++) {
+                if (maze[y][x] === 2) pellets.push({ x, y });
+                else if (maze[y][x] === 3) powerPellets.push({ x, y });
+            }
         }
     }
+    resetMaze();
 
     function gameLoop() {
         update();
@@ -82,7 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function update() {
         pacmanMoveCounter++;
         if (pacmanMoveCounter % 4 === 0) {
-            // Keyboard controls
             if (keys['ArrowUp']) pacman.direction = Directions.UP;
             if (keys['ArrowDown']) pacman.direction = Directions.DOWN;
             if (keys['ArrowLeft']) pacman.direction = Directions.LEFT;
@@ -90,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (keys['ArrowUp'] || keys['ArrowDown'] || keys['ArrowLeft'] || keys['ArrowRight']) {
                 movePacman();
             }
-            // Button controls
             if (buttonStates.up) pacman.direction = Directions.UP;
             if (buttonStates.down) pacman.direction = Directions.DOWN;
             if (buttonStates.left) pacman.direction = Directions.LEFT;
@@ -113,7 +130,9 @@ document.addEventListener('DOMContentLoaded', () => {
             case Directions.LEFT: nextX--; break;
             case Directions.RIGHT: nextX++; break;
         }
-        if (nextX >= 0 && nextX < MAZE_WIDTH && nextY >= 0 && nextY < MAZE_HEIGHT && maze[nextY][nextX] !== 1) {
+        if (nextX < 0) nextX = MAZE_WIDTH - 1; // Wrap around left
+        if (nextX >= MAZE_WIDTH) nextX = 0;     // Wrap around right
+        if (nextY >= 0 && nextY < MAZE_HEIGHT && maze[nextY][nextX] !== 1) {
             pacman.x = nextX;
             pacman.y = nextY;
         }
@@ -131,15 +150,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (dir === Directions.DOWN) nextY++;
                     if (dir === Directions.LEFT) nextX--;
                     if (dir === Directions.RIGHT) nextX++;
-                    return nextX >= 0 && nextX < MAZE_WIDTH && nextY >= 0 && nextY < MAZE_HEIGHT && maze[nextY][nextX] !== 1;
+                    if (nextX < 0) nextX = MAZE_WIDTH - 1;
+                    if (nextX >= MAZE_WIDTH) nextX = 0;
+                    return nextY >= 0 && nextY < MAZE_HEIGHT && maze[nextY][nextX] !== 1;
                 });
                 if (possibleDirections.length > 0) {
                     ghost.direction = possibleDirections[Math.floor(Math.random() * possibleDirections.length)];
                 }
-                if (ghost.direction === Directions.UP) ghost.y--;
-                if (ghost.direction === Directions.DOWN) ghost.y++;
-                if (ghost.direction === Directions.LEFT) ghost.x--;
-                if (ghost.direction === Directions.RIGHT) ghost.x++;
+                let nextX = ghost.x;
+                let nextY = ghost.y;
+                if (ghost.direction === Directions.UP) nextY--;
+                if (ghost.direction === Directions.DOWN) nextY++;
+                if (ghost.direction === Directions.LEFT) nextX--;
+                if (ghost.direction === Directions.RIGHT) nextX++;
+                if (nextX < 0) nextX = MAZE_WIDTH - 1;
+                if (nextX >= MAZE_WIDTH) nextX = 0;
+                if (nextY >= 0 && nextY < MAZE_HEIGHT && maze[nextY][nextX] !== 1) {
+                    ghost.x = nextX;
+                    ghost.y = nextY;
+                }
             });
         }
     }
@@ -174,33 +203,27 @@ document.addEventListener('DOMContentLoaded', () => {
             level++;
             if (level > 10) {
                 score += 1000;
-                alert('Congratulations! You beat level 10. Bonus points awarded. Final score: ' + score);
+                alert('Congratulations! You beat all 10 levels! Final score: ' + score);
                 document.location.reload();
             } else {
-                alert('Level ' + (level - 1) + ' completed! Moving to level ' + level);
+                alert(`Level ${level - 1} completed! Starting Level ${level}`);
                 resetLevel();
             }
         }
     }
 
     function resetPositions() {
-        pacman.x = 1;
-        pacman.y = 1;
-        ghosts.forEach(ghost => {
-            ghost.x = 9;
-            ghost.y = 9;
-        });
+        pacman.x = 13;
+        pacman.y = 23;
+        pacman.direction = Directions.LEFT;
+        ghosts[0].x = 13; ghosts[0].y = 11; ghosts[0].direction = Directions.UP;    // Blinky
+        ghosts[1].x = 14; ghosts[1].y = 13; ghosts[1].direction = Directions.DOWN;  // Pinky
+        ghosts[2].x = 12; ghosts[2].y = 13; ghosts[2].direction = Directions.DOWN;  // Inky
+        ghosts[3].x = 15; ghosts[3].y = 13; ghosts[3].direction = Directions.DOWN;  // Clyde
     }
 
     function resetLevel() {
-        pellets = [];
-        powerPellets = [];
-        for (let y = 0; y < MAZE_HEIGHT; y++) {
-            for (let x = 0; x < MAZE_WIDTH; x++) {
-                if (maze[y][x] === 2) pellets.push({ x, y });
-                else if (maze[y][x] === 3) powerPellets.push({ x, y });
-            }
-        }
+        resetMaze();
         resetPositions();
     }
 
@@ -215,12 +238,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else if (maze[y][x] === 2) {
                     ctx.fillStyle = 'yellow';
                     ctx.beginPath();
-                    ctx.arc(x * window.TILE_SIZE + window.TILE_SIZE / 2, y * window.TILE_SIZE + window.TILE_SIZE / 2, 2, 0, Math.PI * 2);
+                    ctx.arc(x * window.TILE_SIZE + window.TILE_SIZE / 2, y * window.TILE_SIZE + window.TILE_SIZE / 2, window.TILE_SIZE / 6, 0, Math.PI * 2);
                     ctx.fill();
                 } else if (maze[y][x] === 3) {
                     ctx.fillStyle = 'yellow';
                     ctx.beginPath();
-                    ctx.arc(x * window.TILE_SIZE + window.TILE_SIZE / 2, y * window.TILE_SIZE + window.TILE_SIZE / 2, 5, 0, Math.PI * 2);
+                    ctx.arc(x * window.TILE_SIZE + window.TILE_SIZE / 2, y * window.TILE_SIZE + window.TILE_SIZE / 2, window.TILE_SIZE / 3, 0, Math.PI * 2);
                     ctx.fill();
                 }
             }
@@ -230,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.arc(pacman.x * window.TILE_SIZE + window.TILE_SIZE / 2, pacman.y * window.TILE_SIZE + window.TILE_SIZE / 2, window.TILE_SIZE / 2, 0, Math.PI * 2);
         ctx.fill();
         ghosts.forEach(ghost => {
-            ctx.fillStyle = 'red';
+            ctx.fillStyle = ghost.color;
             ctx.fillRect(ghost.x * window.TILE_SIZE, ghost.y * window.TILE_SIZE, window.TILE_SIZE, window.TILE_SIZE);
         });
         document.getElementById('score').innerText = 'Score: ' + score;
@@ -238,11 +261,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('level').innerText = 'Level: ' + level;
     }
 
-    // Keyboard controls
     document.addEventListener('keydown', (event) => { keys[event.key] = true; });
     document.addEventListener('keyup', (event) => { keys[event.key] = false; });
 
-    // Button controls
     const upBtn = document.getElementById('upBtn');
     const downBtn = document.getElementById('downBtn');
     const leftBtn = document.getElementById('leftBtn');
