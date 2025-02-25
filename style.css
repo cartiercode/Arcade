@@ -43,14 +43,14 @@ body {
 }
 
 #level {
-    bottom: 10px;
+    bottom: 100px; /* Moved up to avoid controls */
     left: 10px;
 }
 
 #controls {
-    display: none; /* Hidden by default */
+    display: none;
     position: absolute;
-    bottom: 5px; /* Close to the bottom of the canvas */
+    bottom: 20px; /* Moved up from 5px to fit tablets */
     left: 50%;
     transform: translateX(-50%);
     flex-direction: column;
@@ -79,7 +79,6 @@ body {
     background-color: #555;
 }
 
-/* Show controls on mobile and tablets */
 @media (max-width: 1024px) {
     #controls {
         display: flex;
