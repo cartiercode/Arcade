@@ -45,8 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let touchStartY = 0;
     let touchEndX = 0;
     let touchEndY = 0;
-    const SWIPE_THRESHOLD = 20; // Lowered for quicker response
-    let isTouchActive = false; // Track if touch controls are active
+    const SWIPE_THRESHOLD = 20;
+    let isTouchActive = false;
 
     let maze = [
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -86,8 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function update() {
         pacmanMoveCounter++;
-        // Keyboard controls with delay
         if (pacmanMoveCounter % 4 === 0) {
+            // Keyboard controls
             if (keys['ArrowUp']) pacman.direction = Directions.UP;
             if (keys['ArrowDown']) pacman.direction = Directions.DOWN;
             if (keys['ArrowLeft']) pacman.direction = Directions.LEFT;
@@ -95,10 +95,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (keys['ArrowUp'] || keys['ArrowDown'] || keys['ArrowLeft'] || keys['ArrowRight']) {
                 movePacman();
             }
-        }
-        // Touch controls without delay if active
-        if (isTouchActive) {
-            movePacman();
+            // Touch controls
+            if (isTouchActive) {
+                movePacman();
+            }
         }
         moveGhosts();
         checkCollisions();
@@ -246,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
-        isTouchActive = true; // Activate touch controls
+        isTouchActive = true;
     });
 
     canvas.addEventListener('touchmove', (e) => {
@@ -260,19 +260,16 @@ document.addEventListener('DOMContentLoaded', () => {
         let deltaX = touchEndX - touchStartX;
         let deltaY = touchEndY - touchStartY;
         if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > SWIPE_THRESHOLD) {
-            if (deltaX > 0) pacman.direction = Directions.RIGHT;
-            else pacman.direction = Directions.LEFT;
+            pacman.direction = deltaX > 0 ? Directions.RIGHT : Directions.LEFT;
         } else if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
-            if (deltaY > 0) pacman.direction = Directions.DOWN;
-            else pacman.direction = Directions.UP;
+            pacman.direction = deltaY > 0 ? Directions.DOWN : Directions.UP;
         }
-        // Don't call movePacman() here; let update() handle it continuously
+        isTouchActive = false; // Stop when finger lifts
     });
 
-    // Stop movement when touch ends (optional: remove if you want continuous movement)
     canvas.addEventListener('touchcancel', (e) => {
         e.preventDefault();
-        isTouchActive = false;
+        isTouchActive = false; // Stop if touch is interrupted
     });
 
     gameLoop();
