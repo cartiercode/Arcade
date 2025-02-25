@@ -1,22 +1,25 @@
+/* Style the body to center everything */
 body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 100vh; /* Full viewport height */
     margin: 0;
     padding: 0;
     background-color: black;
-    overflow: hidden;
+    overflow: hidden; /* Prevent scrolling */
 }
 
+/* Container for the game */
 #game-container {
     position: relative;
-    width: 100vw;
-    height: 100vh;
+    width: 100vw; /* Full viewport width */
+    height: 100vh; /* Full viewport height */
     max-width: 100%;
     max-height: 100%;
 }
 
+/* Canvas styling */
 #gameCanvas {
     background-color: black;
     width: 100%;
@@ -24,6 +27,7 @@ body {
     display: block;
 }
 
+/* Styling for score, lives, and level text */
 #score, #lives, #level {
     position: absolute;
     color: white;
@@ -32,25 +36,29 @@ body {
     padding: 5px;
 }
 
+/* Position the score at the top-left */
 #score {
     top: 10px;
     left: 10px;
 }
 
+/* Position the lives at the top-right */
 #lives {
     top: 10px;
     right: 10px;
 }
 
+/* Position the level above the controls */
 #level {
-    bottom: 100px; /* Moved up to avoid controls */
+    bottom: 100px; /* Moved up to avoid overlapping with controls */
     left: 10px;
 }
 
+/* Style the control buttons container */
 #controls {
-    display: none;
+    display: none; /* Hidden on desktop by default */
     position: absolute;
-    bottom: 20px; /* Moved up from 5px to fit tablets */
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     flex-direction: column;
@@ -58,27 +66,31 @@ body {
     padding: 5px;
 }
 
+/* Style for horizontal arrangement of left and right buttons */
 .horizontal {
     display: flex;
-    gap: 15px;
+    gap: 15px; /* Space between buttons */
 }
 
+/* Style for individual control buttons */
 #controls button {
     width: 50px;
     height: 50px;
     font-size: 24px;
-    background-color: #333;
+    background-color: #333; /* Dark gray */
     color: white;
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    touch-action: manipulation;
+    touch-action: manipulation; /* Improve touch response */
 }
 
+/* Change button color when pressed */
 #controls button:active {
-    background-color: #555;
+    background-color: #555; /* Lighter gray */
 }
 
+/* Show controls on mobile devices (screen width <= 1024px) */
 @media (max-width: 1024px) {
     #controls {
         display: flex;
