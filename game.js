@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function resizeCanvas() {
         canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvas.height = window.innerHeight * (window.innerWidth <= 768 ? 0.8 : 1); // 80% height on mobile
         const minDimension = Math.min(canvas.width, canvas.height);
         window.TILE_SIZE = minDimension / MAZE_WIDTH;
     }
@@ -41,12 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let ghostMoveCounter = 0;
     let pacmanMoveCounter = 0;
     let keys = {};
-    let touchStartX = 0;
-    let touchStartY = 0;
-    let touchEndX = 0;
-    let touchEndY = 0;
-    const SWIPE_THRESHOLD = 20;
-    let isTouchActive = false;
+    let buttonStates = { up: false, down: false, left: false, right: false };
 
     let maze = [
         [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -95,8 +90,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (keys['ArrowUp'] || keys['ArrowDown'] || keys['ArrowLeft'] || keys['ArrowRight']) {
                 movePacman();
             }
-            // Touch controls
-            if (isTouchActive) {
+            // Button controls
+            if (buttonStates.up) pacman.direction = Directions.UP;
+            if (buttonStates.down) pacman.direction = Directions.DOWN;
+            if (buttonStates.left) pacman.direction = Directions.LEFT;
+            if (buttonStates.right) pacman.direction = Directions.RIGHT;
+            if (buttonStates.up || buttonStates.down || buttonStates.left || buttonStates.right) {
                 movePacman();
             }
         }
@@ -239,38 +238,35 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('level').innerText = 'Level: ' + level;
     }
 
+    // Keyboard controls
     document.addEventListener('keydown', (event) => { keys[event.key] = true; });
     document.addEventListener('keyup', (event) => { keys[event.key] = false; });
 
-    canvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-        isTouchActive = true;
-    });
+    // Button controls
+    const upBtn = document.getElementById('upBtn');
+    const downBtn = document.getElementById('downBtn');
+    const leftBtn = document.getElementById('leftBtn');
+    const rightBtn = document.getElementById('rightBtn');
 
-    canvas.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        touchEndX = e.touches[0].clientX;
-        touchEndY = e.touches[0].clientY;
-    });
+    upBtn.addEventListener('mousedown', () => { buttonStates.up = true; });
+    upBtn.addEventListener('mouseup', () => { buttonStates.up = false; });
+    upBtn.addEventListener('touchstart', (e) => { e.preventDefault(); buttonStates.up = true; });
+    upBtn.addEventListener('touchend', (e) => { e.preventDefault(); buttonStates.up = false; });
 
-    canvas.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        let deltaX = touchEndX - touchStartX;
-        let deltaY = touchEndY - touchStartY;
-        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > SWIPE_THRESHOLD) {
-            pacman.direction = deltaX > 0 ? Directions.RIGHT : Directions.LEFT;
-        } else if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
-            pacman.direction = deltaY > 0 ? Directions.DOWN : Directions.UP;
-        }
-        isTouchActive = false; // Stop when finger lifts
-    });
+    downBtn.addEventListener('mousedown', () => { buttonStates.down = true; });
+    downBtn.addEventListener('mouseup', () => { buttonStates.down = false; });
+    downBtn.addEventListener('touchstart', (e) => { e.preventDefault(); buttonStates.down = true; });
+    downBtn.addEventListener('touchend', (e) => { e.preventDefault(); buttonStates.down = false; });
 
-    canvas.addEventListener('touchcancel', (e) => {
-        e.preventDefault();
-        isTouchActive = false; // Stop if touch is interrupted
-    });
+    leftBtn.addEventListener('mousedown', () => { buttonStates.left = true; });
+    leftBtn.addEventListener('mouseup', () => { buttonStates.left = false; });
+    leftBtn.addEventListener('touchstart', (e) => { e.preventDefault(); buttonStates.left = true; });
+    leftBtn.addEventListener('touchend', (e) => { e.preventDefault(); buttonStates.left = false; });
+
+    rightBtn.addEventListener('mousedown', () => { buttonStates.right = true; });
+    rightBtn.addEventListener('mouseup', () => { buttonStates.right = false; });
+    rightBtn.addEventListener('touchstart', (e) => { e.preventDefault(); buttonStates.right = true; });
+    rightBtn.addEventListener('touchend', (e) => { e.preventDefault(); buttonStates.right = false; });
 
     gameLoop();
 });
